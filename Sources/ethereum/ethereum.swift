@@ -1,14 +1,14 @@
 import Foundation
 
-class Ethereum {
+public class Ethereum {
 
   //MARK: Properties
-  let node: String
-  let rpcVersion = "2.0"
-  var requestId = 0
+  public let node: String
+  public let rpcVersion = "2.0"
+  public var requestId = 0
 
   //MARK: Initializer
-  init(_ node: String) {
+  public init(_ node: String) {
     self.node = node
   }
 
@@ -53,7 +53,7 @@ class Ethereum {
   }
 
   //Convenience Methods
-  func balance(of wallet: String, callback: @escaping (String) -> Void) {
+  public func balance(of wallet: String, callback: @escaping (String) -> Void) {
     let json = self.jsonData(with: "eth_getBalance", and: [wallet, "latest"])
     self.networkRequest(with: json!, dataRetrieved: callback)
   }
