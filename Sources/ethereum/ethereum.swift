@@ -8,7 +8,7 @@ public class Ethereum {
   public var requestId = 0
 
   //MARK: Initializer
-  public init(_ node: String) {
+  public init(using node: String) {
     self.node = node
   }
 
