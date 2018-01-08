@@ -13,7 +13,7 @@ public class Ethereum {
   }
 
   //MARK: Methods
-  func jsonData(with method: String, and params: [String]) -> Data? {
+  public func jsonData(method: String, params: [String]) -> Data? {
     var json = [String: Any]()
     json["jsonrpc"] = rpcVersion
     json["id"] = requestId
@@ -23,7 +23,7 @@ public class Ethereum {
     return data
   }
 
-  func networkRequest(with json: Data, dataRetrieved: @escaping (String) -> Void) {
+  public func networkRequest(with json: Data, dataRetrieved: @escaping (String) -> Void) {
     //URL Request
     let url = URL(string: self.node)!
     let session = URLSession.shared
@@ -54,7 +54,12 @@ public class Ethereum {
 
   //Convenience Methods
   public func balance(of wallet: String, callback: @escaping (String) -> Void) {
-    let json = self.jsonData(with: "eth_getBalance", and: [wallet, "latest"])
+    let json = self.jsonData(method: "eth_getBalance", params: [wallet, "latest"])
+    self.networkRequest(with: json!, dataRetrieved: callback)
+  }
+
+  public func newAccount(password: String, callback: @escaping (String) -> Void) {
+    let json = self.jsonData(method: "personal_newAccount", params: [password])
     self.networkRequest(with: json!, dataRetrieved: callback)
   }
 
