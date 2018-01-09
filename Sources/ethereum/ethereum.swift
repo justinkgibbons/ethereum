@@ -23,6 +23,20 @@ public class Ethereum {
     return data
   }
 
+  public func xRequest(with json: Data) -> URLRequest {
+    let url = URL(string: self.node)!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.httpBody = json
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.addValue("application/json", forHTTPHeaderField: "Accept")
+    return request
+  }
+
+  public var networkSession: URLSession {
+    return URLSession.shared
+  }
+
   public func networkRequest(with json: Data, dataRetrieved: @escaping (String) -> Void) {
     //URL Request
     let url = URL(string: self.node)!
@@ -38,7 +52,7 @@ public class Ethereum {
         do {
           let jsonSerialized = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
           let result = jsonSerialized["result"]!
-          dataRetrieved(result as! String)
+          dataRetrieved(result as! String) //make as! Any
         } catch {
           print("Network error: \(error)")
         }
@@ -63,9 +77,23 @@ public class Ethereum {
     self.networkRequest(with: json!, dataRetrieved: callback)
   }
 
-  public func accounts(callback: @escaping (String) -> Void) {
+  public func accounts(dataRetrieved: @escaping ([String]) -> Void) {
     let json = self.jsonData(method: "personal_listAccounts", params: [])
-    self.networkRequest(with: json!, dataRetrieved: callback)
+    let request = self.xRequest(with: json!)
+    let task = self.networkSession.dataTask(with: request) {
+      data, response, error in
+
+      if let data = data {
+        do {
+          let jsonSerialized = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+          let result = jsonSerialized["result"]
+          dataRetrieved(result as! [String])
+        } catch {
+          print("Error: \(error)")
+        }
+      }
+    }
+    task.resume()
   }
 
 }
