@@ -40,7 +40,7 @@ public class Ethereum {
           let result = jsonSerialized["result"]!
           dataRetrieved(result as! String)
         } catch {
-          print("Error: \(error)")
+          print("Network error: \(error)")
         }
       }
     }
@@ -60,6 +60,11 @@ public class Ethereum {
 
   public func newAccount(password: String, callback: @escaping (String) -> Void) {
     let json = self.jsonData(method: "personal_newAccount", params: [password])
+    self.networkRequest(with: json!, dataRetrieved: callback)
+  }
+
+  public func accounts(callback: @escaping (String) -> Void) {
+    let json = self.jsonData(method: "personal_listAccounts", params: [])
     self.networkRequest(with: json!, dataRetrieved: callback)
   }
 
