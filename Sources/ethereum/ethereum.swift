@@ -66,6 +66,22 @@ public class Ethereum {
     self.requestId += 1
   }
 
+  func validated(_ data: Data?) -> Any? {
+    let result: Any?
+    if let data = data {
+      do {
+        let jsonSerialized = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
+        result = jsonSerialized["result"]
+      } catch {
+        print("Data error: \(error)")
+        result = nil
+      }
+    } else {
+      result = nil
+    }
+    return result
+  }
+
   //Convenience Methods
   public func balance(of wallet: String, callback: @escaping (String) -> Void) {
     let json = self.jsonData(method: "eth_getBalance", params: [wallet, "latest"])
@@ -82,15 +98,8 @@ public class Ethereum {
     let request = self.xRequest(with: json!)
     let task = self.networkSession.dataTask(with: request) {
       data, response, error in
-
-      if let data = data {
-        do {
-          let jsonSerialized = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
-          let result = jsonSerialized["result"]
-          dataRetrieved(result as! [String])
-        } catch {
-          print("Error: \(error)")
-        }
+      if let data = self.validated(data) {
+        dataRetrieved(data as! [String])
       }
     }
     task.resume()
